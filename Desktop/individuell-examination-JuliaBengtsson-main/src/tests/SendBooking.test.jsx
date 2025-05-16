@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Booking from "../views/Booking";
 import { server } from "../mocks/server";
-import { rest } from "msw"; // Jag importerar rest istället för msw, då rest-syntax är i linje med msw@1
+import { rest } from "msw";
 
 // Mocka POST-anropet
 server.use(

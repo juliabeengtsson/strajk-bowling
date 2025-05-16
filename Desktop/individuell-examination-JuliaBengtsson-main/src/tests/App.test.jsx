@@ -2,8 +2,6 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Booking from "../views/Booking";
 import { MemoryRouter } from "react-router-dom";
 
-// uppdaterade mest syntax här, again, från http till rest
-
 test("should send a booking successfully when form is filled and button is clicked", async () => {
   render(
     <MemoryRouter>
@@ -11,7 +9,6 @@ test("should send a booking successfully when form is filled and button is click
     </MemoryRouter>
   );
 
-  // Fyll i bokningsdetaljer
   fireEvent.change(screen.getByLabelText(/date/i), {
     target: { value: "2024-12-18" },
   });

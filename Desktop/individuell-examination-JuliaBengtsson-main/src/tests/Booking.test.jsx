@@ -6,7 +6,6 @@ import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import BookingInfo from '../components/BookingInfo/BookingInfo';
 import { vi } from 'vitest';
-import { sendBooking } from '../utils/sendBooking';
 import Confirmation from '../views/Confirmation';
 
 describe('App component', async () => {
