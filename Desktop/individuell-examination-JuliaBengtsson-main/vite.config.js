@@ -11,7 +11,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: "./setup-test",
+    setupFiles: "./setup-test.js", // korrekt path
     provider: "v8",
     coverage: {
       reporter: ["text", "json", "lcov", "json-summary"],

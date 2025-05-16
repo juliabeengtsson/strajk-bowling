@@ -1,65 +1,46 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import { it, describe } from "vitest";
-import App from "../App.jsx";
-import Confirmation from "../views/Confirmation.jsx";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import Booking from "../views/Booking";
 import { MemoryRouter } from "react-router-dom";
 
-// Tried first test so it works with github actions...
-describe("App component", () => {
-    it("just try render App component", async () => {
-        render(<App />);
-    });
-})
+// uppdaterade mest syntax här, again, från http till rest
 
-// Systemet ska generera ett bokningsnummer och visa detta till användaren efter att bokningen är slutförd.
-// Systemet ska beräkna och visa den totala summan för bokningen baserat på antalet spelare (120 kr per person) samt antalet reserverade banor (100 kr per bana).
-// Den totala summan ska visas tydligt på bekräftelsesidan och inkludera en uppdelning mellan spelare och banor.
-describe("App component", () => {
-    it("Genereat a booking number", async () => {
-        const mockConfirmation = {
-            when: "2024-12-31T18:00",
-            people: 2,
-            lanes: 2,
-            id: "BOOK12345",
-            price: 680
-        }
-    
-        screen.debug()
+test("should send a booking successfully when form is filled and button is clicked", async () => {
+  render(
+    <MemoryRouter>
+      <Booking />
+    </MemoryRouter>
+  );
 
-        render(
-            <MemoryRouter initialEntries={ [{ state: {confirmationDetails: mockConfirmation} }]}>
-                <Confirmation />
-            </MemoryRouter>
-        )
-    
-        const bookingNumberInput = screen.getByDisplayValue(mockConfirmation.id)
-        expect(bookingNumberInput).toBeInTheDocument() 
-    });
-    
-    it("Show total price for booking based on players and lanes", () => {
-        const mockConfirmation = {
-            when: "2024-12-31T18:00",
-            people: 2,
-            lanes: 2,
-            id: "BOOK12345",
-            price: 680,
-        };
-        
-        render(
-            <MemoryRouter initialEntries={[{ state: { confirmationDetails: mockConfirmation } }]}>
-              <Confirmation />
-            </MemoryRouter>
-        );
-        
-        const totalPriceElement = screen.getByText(/total:/i)
-        expect(totalPriceElement).toBeInTheDocument()
-        expect(totalPriceElement.nextSibling.textContent).toContain(`${mockConfirmation.price} sek`)
+  // Fyll i bokningsdetaljer
+  fireEvent.change(screen.getByLabelText(/date/i), {
+    target: { value: "2024-12-18" },
+  });
+  fireEvent.change(screen.getByLabelText(/time/i), {
+    target: { value: "21:00" },
+  });
+  fireEvent.change(screen.getByLabelText(/number of lanes/i), {
+    target: { value: "1" },
+  });
+  fireEvent.change(screen.getByLabelText(/number of awesome bowlers/i), {
+    target: { value: "2" },
+  });
 
-        const peopleBreakdown = screen.getByText((content) => content.includes("2 x 120"));
-        expect(peopleBreakdown).toBeInTheDocument()
-    
-        const lanesBreakdown = screen.getByText((content) => content.includes("2 x 100"));
-        expect(lanesBreakdown).toBeInTheDocument()
-    })
-})
+  // Lägg till två skor
+  fireEvent.click(screen.getByText("+"));
+  fireEvent.click(screen.getByText("+"));
+
+  // Fyll i skostorlekar (efter att inputs genererats)
+  const shoeInputs = screen.getAllByRole("textbox"); // Din Shoes-komponent använder textfält
+  fireEvent.change(shoeInputs[0], { target: { value: "42" } });
+  fireEvent.change(shoeInputs[1], { target: { value: "38" } });
+
+  // Skicka bokningen
+  const button = screen.getByRole("button", { name: /striiiiiike!/i });
+  fireEvent.click(button);
+
+  // Kontrollera att bekräftelsen visas
+  await waitFor(() => {
+    expect(screen.getByText(/booking id: abc123/i)).toBeInTheDocument();
+    expect(screen.getByText(/status: active/i)).toBeInTheDocument();
+  });
+});

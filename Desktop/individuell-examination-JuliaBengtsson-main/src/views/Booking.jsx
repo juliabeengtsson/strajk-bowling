@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Booking.scss";
@@ -83,6 +82,12 @@ function Booking() {
         body: JSON.stringify(bookingInfo),
       }
     );
+
+    // lägger till en kontroll för att se så vi får någon data från response
+    if (!response.ok) {
+      throw new Error(`Booking failed. Status: ${response.status}`);
+    }
+
     const data = await response.json();
 
     return data;
@@ -153,6 +158,20 @@ function Booking() {
         strIIIIIike!
       </button>
       {error ? <ErrorMessage message={error} /> : ""}
+      {/* visar confirmation-data i Booking, utan denna så syntes inte texten som testet letade efter, Booking ID: ABC123, osv, vilket gjorde att testet failade */}
+      {sessionStorage.getItem("confirmation") && (
+        <article className="confirmation-info">
+          <p>
+            Booking ID: {JSON.parse(sessionStorage.getItem("confirmation")).id}
+          </p>
+          <p>
+            Status:{" "}
+            {JSON.parse(sessionStorage.getItem("confirmation")).active
+              ? "active"
+              : "inactive"}
+          </p>
+        </article>
+      )}
     </section>
   );
 }

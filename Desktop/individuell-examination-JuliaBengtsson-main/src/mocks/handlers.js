@@ -1,29 +1,31 @@
-import { http, HttpResponse } from 'msw';
+import { rest } from "msw"; // samma här, vi använder rest istället för http, för msw@1
+
+// Skapar ett fejk-API-svar med MSW (Mock Service Worker), här för POST-anrop med REST
+// Vi använder `rest.post` från MSW istället för `http.post` (som tillhör MSW v2:s "experimental" syntax)
+// ctx.status och ctx.json används för att sätta statuskod och svar, vilket är korrekt MSW-syntax
 
 export const handlers = [
-  http.post('https://h5jbtjv6if.execute-api.eu-north-1.amazonaws.com', async (request) => {
-    // Läs in och bearbeta requestens body
-    const body = await request.request.json();
-    const { when, people, lanes, shoes } = body;
+  rest.post(
+    "https://h5jbtjv6if.execute-api.eu-north-1.amazonaws.com",
+    async (req, res, ctx) => {
+      const body = await req.json();
+      const { when, people, lanes, shoes } = body;
 
-    // Beräkna priset baserat på lanes och people
-    const price = parseInt(lanes) * 100 + parseInt(people) * 120;
+      const price = parseInt(lanes) * 100 + parseInt(people) * 120;
 
-    // Mockad respons
-    const confirmation = {
-      id: 'ABC123',
-      price: price.toString(),
-      active: true,
-      when,
-      lanes,
-      people,
-      shoes,
-    };
+      const confirmation = {
+        id: "ABC123",
+        price: price.toString(),
+        active: true,
+        when,
+        lanes,
+        people,
+        shoes,
+      };
 
-    // Sätt mockad data i sessionStorage
-    sessionStorage.setItem('confirmation', JSON.stringify(confirmation));
+      sessionStorage.setItem("confirmation", JSON.stringify(confirmation));
 
-    // Returnera den mockade responsen
-    return HttpResponse.json(confirmation); // Mocka tillbaka ett JSON-svar
-  }),
+      return res(ctx.status(200), ctx.json(confirmation)); // uppdaterad syntax, ctx(rest) istället för httpResponse
+    }
+  ),
 ];
